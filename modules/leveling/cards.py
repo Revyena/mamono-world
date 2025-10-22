@@ -5,13 +5,14 @@ from typing import List, TypeVar
 import discord
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter
 from discord import NotFound, HTTPException
-
-from ORM import Level
+from resources.resources import Level as LevelObject
+from resources.levels import Level
 
 here = os.path.dirname(os.path.abspath(__file__))  # projectroot/modules/leveling
 font_path = os.path.normpath(os.path.join(here, "..", "..", "files", "PressStart2P-Regular.ttf"))
 
-async def generate_rank_card(user, level_data):
+
+async def generate_rank_card(user: discord.User, level_data: LevelObject):
     # Card setup
     card_width, card_height = 800, 240
     card = Image.new("RGBA", (card_width, card_height), (13, 13, 13, 255))  # Shadow's black
@@ -37,7 +38,7 @@ async def generate_rank_card(user, level_data):
 
     # Level and XP
     level = level_data.level
-    xp = level_data.xp
+    xp = level_data.experience
     next_level_xp = Level.total_xp_for_level(level + 1)
     current_level_xp = Level.total_xp_for_level(level)
     progress = (xp - current_level_xp) / (next_level_xp - current_level_xp)

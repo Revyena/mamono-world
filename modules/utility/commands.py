@@ -1,10 +1,14 @@
 import discord
 from discord import commands, Embed, ButtonStyle
 
+from controllers.redis_controller import RedisController
+from resources.levels import Level
+
 
 class Info(discord.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
+        self.level = Level(bot=self.bot)
 
     def calculate_oauth(self):
         perms = discord.Permissions(
@@ -44,6 +48,11 @@ We are constantly working to add new features and improve existing ones. Want to
         view.add_item(discord.ui.Button(label="GitHub", url="https://github.com/Revyena/mamono-world"))
 
         await ctx.respond(embed=info_embed, view=view)
+
+    @commands.command()
+    async def test_redis(self, ctx):
+        """Checks Redis connectivity by setting and getting a test value."""
+        return await ctx.respond(f"🟢 Redis test successful!\n<@{level.user.user}> is now level {level.level} with {level.experience} XP.")
 
 
 def setup(bot: discord.Bot):

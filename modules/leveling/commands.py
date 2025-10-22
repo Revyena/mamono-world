@@ -1,24 +1,21 @@
-import os
-
 import discord
 from discord import commands
 from discord.ext import commands as ext_commands
-from ORM import Level
-from managers import settings_manager, SettingsManager
-from managers.settings.guild_settings import SettingKey
 from modules.leveling.cards import generate_rank_card, generate_leaderboard
 from modules.leveling.views import LeaderboardView
+from resources.levels import Level
 
 
 class LevelingCog(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.levels = Level(bot)
         self.__cog_name__ = "Leveling"
 
-    async def cog_check(self, ctx):
-        """Ensure the module is enabled."""
-        is_module_enabled = await settings_manager.get(scope_type=SettingsManager.SCOPES_GUILD, scope_id=ctx.guild.id, setting_key=SettingKey.LEVEL_UP_ENABLED)
-        return is_module_enabled
+    # async def cog_check(self, ctx):
+    #     """Ensure the module is enabled."""
+    #     is_module_enabled = await settings_manager.get(scope_type=SettingsManager.SCOPES_GUILD, scope_id=ctx.guild.id, setting_key=SettingKey.LEVEL_UP_ENABLED)
+    #     return is_module_enabled
 
     level = commands.SlashCommandGroup("level", "Leveling commands")
 
@@ -27,9 +24,8 @@ class LevelingCog(discord.Cog):
         """Display your current rank and XP."""
         await ctx.defer(ephemeral=True)
         user_id = ctx.author.id
-        level_data, _ = await Level.objects.get_or_create(user=user_id, guild=ctx.guild.id)
-
-        card = await generate_rank_card(ctx.author, level_data)
+        level = await self.levels.get(ctx.user.id, ctx.guild.id)
+        card = await generate_rank_card(ctx.author, level)
         await ctx.respond(file=card)
 
     @level.command()
